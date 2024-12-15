@@ -7,149 +7,85 @@
 
 // TwoSum
 using namespace std;
+
+// Valid Sodoku
 class Solution {
 public:
-  // Prefix and Suffix (Optimal)
-  // Time Complexity- O(n)
-  // Space Complexity- O(1) since the output array is excluded from space
-  // analysis
-  vector<int> productExceptSelf(vector<int> &nums) {
+  // Hash Set (One Pass)
+  // Time Complexity- O(n^2)
+  // Space Complexity- O(n^2)
+  bool isValidSudoku(vector<vector<char>> &board) {
 
-    // n is size of array
-    int n = nums.size();
+    // hash map: key- row or col #, value- set of values(1-9, .)
+    unordered_map<int, unordered_set<char>> rows, cols;
 
-    // Create result vector and set to all 1s
-    vector<int> res(n, 1);
+    // ordered hash map: key- pair of ints, value- set of values(1-9, .)
+    map<pair<int, int>, unordered_set<char>> squares;
 
-    // iterate starting at 1
-    // Set result = previous res * previous nums
-    for (int i = 1; i < n; i++) {
-      res[i] = res[i - 1] * nums[i - 1];
+    // iterate through row 0 through 9
+    for (int r = 0; r < 9; r++) {
+      // iterate through col 0 through 9
+      for (int c = 0; c < 9; c++) {
+
+        // if blank continue
+        if (board[r][c] == '.')
+          continue;
+
+        // squareKey derived from row and column
+        pair<int, int> squareKey = {r / 3, c / 3};
+
+        // Check if the value already exists in the set. If so, return false
+        if (rows[r].count(board[r][c]) || cols[c].count(board[r][c]) ||
+            squares[squareKey].count(board[r][c])) {
+          return false;
+        }
+
+        // if values do not exist, insert them into the sets
+        rows[r].insert(board[r][c]);
+        cols[c].insert(board[r][c]);
+        squares[squareKey].insert(board[r][c]);
+      }
     }
 
-    // postfix = 1
-    int postfix = 1;
-
-    // iterate through res and nums backwards
-    for (int i = n - 1; i >= 0; i--) {
-      res[i] *= postfix;
-      postfix *= nums[i];
-    }
-    return res;
+    // return true if there are no repeating values anywhere and valid
+    return true;
   }
-};
 
-/*
-// Prefix and Suffix
-// Time Complexity- O(n)
-// Space Complexity- O(n)
-    vector<int> productExceptSelf(vector<int>& nums) {
-
-        // size of array
-        int n = nums.size();
-        // Create result array
-        vector<int> res(n);
-        // Create prefix array
-        vector<int> pref(n);
-        // Create suffix array
-        vector<int> suff(n);
-
-        // Set prefix[0] = 1
-        pref[0] = 1;
-
-        // Set last value in suffix array = 1
-        suff[n - 1] = 1;
-
-        // iterate nums
-        // set prefix array = previous nums * previous prefix
-        for (int i = 1; i < n; i++) {
-            pref[i] = nums[i - 1] * pref[i - 1];
-        }
-
-        // Set i to second to last, traverse suffix in reverse order
-        // set suffix array = previous next nums * next suffix
-        for (int i = n - 2; i >= 0; i--) {
-            suff[i] = nums[i + 1] * suff[i + 1];
-        }
-        // set result = pref * suff
-        for (int i = 0; i < n; i++) {
-            res[i] = pref[i] * suff[i];
-        }
-        return res;
-    }
-};
-*/
-
-/*
-// Division
-// Time Complexity- O(n)
-// Space Complexity- O(1) since the output array is excluded from space
-analysis. vector<int> productExceptSelf(vector<int>& nums) {
-
-        // initialize prod and zeroCount
-        int prod = 1, zeroCount = 0;
-
-
-        // iterate through nums. Find product of all nonzero numbers
-        for (int num : nums) {
-
-            // if value is nonzero, multiply
-            if (num != 0) {
-                prod *= num;
-            }
-            // if value is zero, increment zeroCount
-            else {
-                zeroCount++;
-            }
-        }
-
-        // Corner Case- If there are 2 or more zeros, return all zeros
-        if (zeroCount > 1) {
-            return vector<int>(nums.size(), 0);
-        }
-
-        // Create new vector for result
-        vector<int> res(nums.size());
-
-        // iterate through result array
-        for (size_t i = 0; i < nums.size(); i++) {
-
-            // if the zeroCount is 1:
-            // implies there is at least one zero somewhere
-            if (zeroCount > 0) {
-                // for result where num is zero, use product value
-                // for result where num is non-zero, use zero
-                res[i] = (nums[i] == 0) ? prod : 0;
-            } else {
-                // If there are no zeros anywhere, divide prod by nums[i] to get
-res res[i] = prod / nums[i];
-            }
-        }
-        return res;
-    }
-*/
-
-/*
-    // Brute Force
+  /*
+  // Bitmask solution
     // Time Complexity- O(n^2)
-    // Space Complexity- O(1) since output array is excluded from space analysis
-    vector<int> productExceptSelf(vector<int>& nums) {
-        int n = nums.size();
-        vector<int> res(n);
+    // Space Complexity- O(n)
+    bool isValidSudoku(vector<vector<char>>& board) {
+        // initialize arrays
+        int rows[9] = {0};
+        int cols[9] = {0};
+        int squares[9] = {0};
 
-        // Nested For Loop
-        for (int i = 0; i < n; i++) {
-            int prod = 1;
-            for (int j = 0; j < n; j++) {
-                if (i != j) {
-                    prod *= nums[j];
+        // iterate by rows
+        for (int r = 0; r < 9; ++r) {
+            // iterate by columns
+            for (int c = 0; c < 9; ++c) {
+
+                // if value is . continue
+                if (board[r][c] == '.') continue;
+
+                // subtract '1' ascii value from char value
+                int val = board[r][c] - '1';
+
+                // bit shift 1 by the value, then and with current [r/c/squares]
+  array if ((rows[r] & (1 << val)) || (cols[c] & (1 << val)) || (squares[(r / 3)
+  * 3 + (c / 3)] & (1 << val))) { return false;
                 }
-            }
-            res[i] = prod;
-        }
-        return res;
-    }
 
-*/
+                // if there is no match, continue to update the array values
+                rows[r] |= (1 << val);
+                cols[c] |= (1 << val);
+                squares[(r / 3) * 3 + (c / 3)] |= (1 << val);
+            }
+        }
+        return true;
+    }
+  */
+};
 
 int main() { return 0; }
