@@ -10,159 +10,155 @@ using namespace std;
 class Solution {
 
 public:
-  // Bucket Sort Solution
-  // Time Complexity: O(n)
-  // Space Complexity: O(n)
-  vector<int> topKFrequent(vector<int> &nums, int k) {
+  /*
+  string encode(vector<string>& strs) {
+          // Create the result string
+          string res;
 
-    // Create a new count has map
-    unordered_map<int, int> count;
-    // Create an array of arrays of same size as nums
-    vector<vector<int>> freq(nums.size() + 1);
-
-    // count occurence of nums
-    for (int n : nums) {
-      count[n] = 1 + count[n];
-    }
-
-    // Push each entry into the freq vector of vectors- Group together values by
-    // count(into the same vector)) Add the number value to the "bucket"(which
-    // is the count of the number)
-    for (const auto &entry : count) {
-      freq[entry.second].push_back(entry.first);
-    }
-
-    // create a new array for return value
-    vector<int> res;
-
-    // iterate through the freq "bucket" (vector of int vectors), starting with
-    // the largest count/ highest array location
-    for (int i = freq.size() - 1; i > 0; --i) {
-      for (int n : freq[i]) {
-
-        // Push bucket values into res array
-        res.push_back(n);
-
-        // If res array size == k return res
-        if (res.size() == k) {
+          // iterate through the string vector
+          for (const string& s : strs) {
+              // store to string in format- size#word
+              res += to_string(s.size()) + "#" + s;
+          }
+          cout << res<< endl;
           return res;
-        }
       }
+
+      vector<string> decode(string s) {
+
+          // Create a new string vector
+          vector<string> res;
+
+          // initialize i to 0
+          int i = 0;
+
+          // iterate through string
+          while (i < s.size()) {
+
+              // set j equal to i
+              int j = i;
+
+              // Increment j until #
+              while (s[j] != '#') {
+                  j++;
+              }
+
+              // Read the length from the substring, convert to int
+              int length = stoi(s.substr(i, j - i));
+
+
+              i = j + 1;
+              j = i + length;
+              res.push_back(s.substr(i, length));
+              i = j;
+          }
+          return res;
+      }
+      */
+
+  string encode(vector<string> &strs) {
+
+    // Check if empty string
+    if (strs.empty())
+      return "";
+
+    // initialize vector to store sizes of each string
+    vector<int> sizes;
+
+    // initialize result string
+    string res = "";
+
+    // Iterate through the string vector
+    for (string &s : strs) {
+      // push the size of each string to the vector
+      sizes.push_back(s.size());
     }
 
-    // return res
+    // iterate through the vector
+    for (int sz : sizes) {
+
+      // convert the sizes to a string, add comma, save to res
+      res += to_string(sz) + ',';
+    }
+
+    // Add # to the end of res string
+    res += '#';
+
+    // Add strings to the end of res string
+    for (string &s : strs) {
+      res += s;
+    }
+    // cout << res << endl;
     return res;
   }
 
-  /*
-    // Heap Solution
-    // Time Complexity: O(nlogk)
-    // Space Complexity: O(n+k)
-    //  n is the length of the array and k is the number of top frequent
-    elements
+  vector<string> decode(string s) {
 
-    vector<int> topKFrequent(vector<int> &nums, int k) {
+    // check if input string is empty
+    if (s.empty())
+      return {};
 
-      // Create a hash map named count
-      unordered_map<int, int> count;
+    // create a new int vector named sizes
+    vector<int> sizes;
 
-      // iterate through the numbers
-      for (int num : nums) {
+    // create a new string vector for the result
+    vector<string> res;
 
-        // count the occurence of each number and add to the hash map
-        count[num]++;
+    // initialize i to 0
+    int i = 0;
+
+    // iterate to # to get the sizes
+    while (s[i] != '#') {
+
+      // create a string named cur
+      string cur = "";
+
+      // iterate through the string. delimit by comma
+      while (s[i] != ',') {
+        // store numeric value(size) to cur
+        cur += s[i];
+        // increment char in string
+        i++;
       }
 
-      // Create a new heap(stores pair<int, int> values, underlying storage is a
-      // vector, greater is comparison operator(min-heap))
-      priority_queue<pair<int, int>, vector<pair<int, int>>,
-                     greater<pair<int, int>>>
-          heap;
+      // convert cur string to int, then push to sizes vector
+      sizes.push_back(stoi(cur));
 
-      // Iterate through the count hash map
-      for (auto &entry : count) {
-
-        // for each numberentry in hash map, push a pair to the heap (count, num
-        // value)
-
-        heap.push({entry.second, entry.first});
-
-        // If the heap size is greater than k, pop out the value
-        if (heap.size() > k) {
-          heap.pop();
-        }
-      }
-
-      // Create a new array for the result
-      vector<int> res;
-
-      // pop the top k results(num value) from the heap and push to the result
-      // array
-
-      for (int i = 0; i < k; i++) {
-        res.push_back(heap.top().second);
-        heap.pop();
-      }
-
-      // return the result
-      return res;
+      // increment i
+      i++;
     }
-  */
-  /*
-    // Sorting Solution
-    // Time Complexity: O(nlogn)- due to sorting
-    // Space Complexity: O(n)
-    vector<int> topKFrequent(vector<int> &nums, int k) {
 
-      // Create a new hash map: key int, value int
-      unordered_map<int, int> count;
+    // incerement i to go one char past #
+    i++;
 
-      // iterate through the nums array
-      for (int num : nums) {
+    // iterate through the sizes vector
+    for (int sz : sizes) {
+      // for each size value in the vector: get the substring value(i to i+sz)
+      // and add to res vector
+      res.push_back(s.substr(i, sz));
 
-        // count the occurence of each number in the array
-        count[num]++;
-      }
-
-      // create a array of pairs named arr
-      vector<pair<int, int>> arr;
-
-      // iterate through the count hash map
-      for (const auto &p : count) {
-
-        // Push pairs to arr (count value, number)
-        arr.push_back({p.second, p.first});
-      }
-
-      // Sort the array by count value
-      sort(arr.rbegin(), arr.rend());
-
-      // Create a new array named res
-      vector<int> res;
-
-      // push k values to the res array from the pairs in the sorted array
-      for (int i = 0; i < k; ++i) {
-        // push the first k numbers to the result
-        res.push_back(arr[i].second);
-      }
-
-      // Return the result
-      return res;
+      // increment i by the size
+      i += sz;
     }
-    */
+
+    // return result
+    return res;
+  }
 };
 
 int main() {
 
   Solution sol;
 
-  vector<int> t_nums{1, 2, 2, 3, 3, 3};
-  int t_k{2};
-
-  vector<int> result = sol.topKFrequent(t_nums, t_k);
+  vector<string> str_vect{"neet", "code", "love", "you"};
+  for (auto x : str_vect) {
+    cout << x << endl;
+  }
+  vector<string> result{};
+  result = sol.decode(sol.encode(str_vect));
 
   for (auto x : result) {
-    cout << x << "," << endl;
+    cout << x << endl;
   }
   return 0;
 }
