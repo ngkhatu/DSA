@@ -8,157 +8,148 @@
 // TwoSum
 using namespace std;
 class Solution {
-
 public:
-  /*
-  string encode(vector<string>& strs) {
-          // Create the result string
-          string res;
+  // Prefix and Suffix (Optimal)
+  // Time Complexity- O(n)
+  // Space Complexity- O(1) since the output array is excluded from space
+  // analysis
+  vector<int> productExceptSelf(vector<int> &nums) {
 
-          // iterate through the string vector
-          for (const string& s : strs) {
-              // store to string in format- size#word
-              res += to_string(s.size()) + "#" + s;
-          }
-          cout << res<< endl;
-          return res;
-      }
+    // n is size of array
+    int n = nums.size();
 
-      vector<string> decode(string s) {
+    // Create result vector and set to all 1s
+    vector<int> res(n, 1);
 
-          // Create a new string vector
-          vector<string> res;
-
-          // initialize i to 0
-          int i = 0;
-
-          // iterate through string
-          while (i < s.size()) {
-
-              // set j equal to i
-              int j = i;
-
-              // Increment j until #
-              while (s[j] != '#') {
-                  j++;
-              }
-
-              // Read the length from the substring, convert to int
-              int length = stoi(s.substr(i, j - i));
-
-
-              i = j + 1;
-              j = i + length;
-              res.push_back(s.substr(i, length));
-              i = j;
-          }
-          return res;
-      }
-      */
-
-  string encode(vector<string> &strs) {
-
-    // Check if empty string
-    if (strs.empty())
-      return "";
-
-    // initialize vector to store sizes of each string
-    vector<int> sizes;
-
-    // initialize result string
-    string res = "";
-
-    // Iterate through the string vector
-    for (string &s : strs) {
-      // push the size of each string to the vector
-      sizes.push_back(s.size());
+    // iterate starting at 1
+    // Set result = previous res * previous nums
+    for (int i = 1; i < n; i++) {
+      res[i] = res[i - 1] * nums[i - 1];
     }
 
-    // iterate through the vector
-    for (int sz : sizes) {
+    // postfix = 1
+    int postfix = 1;
 
-      // convert the sizes to a string, add comma, save to res
-      res += to_string(sz) + ',';
+    // iterate through res and nums backwards
+    for (int i = n - 1; i >= 0; i--) {
+      res[i] *= postfix;
+      postfix *= nums[i];
     }
-
-    // Add # to the end of res string
-    res += '#';
-
-    // Add strings to the end of res string
-    for (string &s : strs) {
-      res += s;
-    }
-    // cout << res << endl;
-    return res;
-  }
-
-  vector<string> decode(string s) {
-
-    // check if input string is empty
-    if (s.empty())
-      return {};
-
-    // create a new int vector named sizes
-    vector<int> sizes;
-
-    // create a new string vector for the result
-    vector<string> res;
-
-    // initialize i to 0
-    int i = 0;
-
-    // iterate to # to get the sizes
-    while (s[i] != '#') {
-
-      // create a string named cur
-      string cur = "";
-
-      // iterate through the string. delimit by comma
-      while (s[i] != ',') {
-        // store numeric value(size) to cur
-        cur += s[i];
-        // increment char in string
-        i++;
-      }
-
-      // convert cur string to int, then push to sizes vector
-      sizes.push_back(stoi(cur));
-
-      // increment i
-      i++;
-    }
-
-    // incerement i to go one char past #
-    i++;
-
-    // iterate through the sizes vector
-    for (int sz : sizes) {
-      // for each size value in the vector: get the substring value(i to i+sz)
-      // and add to res vector
-      res.push_back(s.substr(i, sz));
-
-      // increment i by the size
-      i += sz;
-    }
-
-    // return result
     return res;
   }
 };
 
-int main() {
+/*
+// Prefix and Suffix
+// Time Complexity- O(n)
+// Space Complexity- O(n)
+    vector<int> productExceptSelf(vector<int>& nums) {
 
-  Solution sol;
+        // size of array
+        int n = nums.size();
+        // Create result array
+        vector<int> res(n);
+        // Create prefix array
+        vector<int> pref(n);
+        // Create suffix array
+        vector<int> suff(n);
 
-  vector<string> str_vect{"neet", "code", "love", "you"};
-  for (auto x : str_vect) {
-    cout << x << endl;
-  }
-  vector<string> result{};
-  result = sol.decode(sol.encode(str_vect));
+        // Set prefix[0] = 1
+        pref[0] = 1;
 
-  for (auto x : result) {
-    cout << x << endl;
-  }
-  return 0;
-}
+        // Set last value in suffix array = 1
+        suff[n - 1] = 1;
+
+        // iterate nums
+        // set prefix array = previous nums * previous prefix
+        for (int i = 1; i < n; i++) {
+            pref[i] = nums[i - 1] * pref[i - 1];
+        }
+
+        // Set i to second to last, traverse suffix in reverse order
+        // set suffix array = previous next nums * next suffix
+        for (int i = n - 2; i >= 0; i--) {
+            suff[i] = nums[i + 1] * suff[i + 1];
+        }
+        // set result = pref * suff
+        for (int i = 0; i < n; i++) {
+            res[i] = pref[i] * suff[i];
+        }
+        return res;
+    }
+};
+*/
+
+/*
+// Division
+// Time Complexity- O(n)
+// Space Complexity- O(1) since the output array is excluded from space
+analysis. vector<int> productExceptSelf(vector<int>& nums) {
+
+        // initialize prod and zeroCount
+        int prod = 1, zeroCount = 0;
+
+
+        // iterate through nums. Find product of all nonzero numbers
+        for (int num : nums) {
+
+            // if value is nonzero, multiply
+            if (num != 0) {
+                prod *= num;
+            }
+            // if value is zero, increment zeroCount
+            else {
+                zeroCount++;
+            }
+        }
+
+        // Corner Case- If there are 2 or more zeros, return all zeros
+        if (zeroCount > 1) {
+            return vector<int>(nums.size(), 0);
+        }
+
+        // Create new vector for result
+        vector<int> res(nums.size());
+
+        // iterate through result array
+        for (size_t i = 0; i < nums.size(); i++) {
+
+            // if the zeroCount is 1:
+            // implies there is at least one zero somewhere
+            if (zeroCount > 0) {
+                // for result where num is zero, use product value
+                // for result where num is non-zero, use zero
+                res[i] = (nums[i] == 0) ? prod : 0;
+            } else {
+                // If there are no zeros anywhere, divide prod by nums[i] to get
+res res[i] = prod / nums[i];
+            }
+        }
+        return res;
+    }
+*/
+
+/*
+    // Brute Force
+    // Time Complexity- O(n^2)
+    // Space Complexity- O(1) since output array is excluded from space analysis
+    vector<int> productExceptSelf(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> res(n);
+
+        // Nested For Loop
+        for (int i = 0; i < n; i++) {
+            int prod = 1;
+            for (int j = 0; j < n; j++) {
+                if (i != j) {
+                    prod *= nums[j];
+                }
+            }
+            res[i] = prod;
+        }
+        return res;
+    }
+
+*/
+
+int main() { return 0; }
